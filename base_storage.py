@@ -2,7 +2,7 @@ import os
 import uuid
 import json
 from abc import ABC, abstractmethod
-from schemas import NewProduct, SavedProduct, ProductId
+from schemas import NewProduct, SavedProduct, ProductId, PatchProduct
 from fastapi import HTTPException, status
 from pymongo import MongoClient
 from settings import settings
@@ -27,6 +27,10 @@ class BaseStorage(ABC):
     def delete_product(self, product_id: str) -> None:
         pass
 
+    @abstractmethod
+    def patch_product(self, product_id: str, data: PatchProduct) -> SavedProduct:
+        pass
+
 
 class MongoStorage(BaseStorage):
     def __init__(self, uri: str):
@@ -35,6 +39,16 @@ class MongoStorage(BaseStorage):
         db = client.products
         collection_product = db.products
         self.collection_product = collection_product
+
+    def patch_product(self, product_id: str, data: PatchProduct) -> SavedProduct:
+        query = {"id": product_id}
+        payload = {"$set": {"price": data.price, "title": data.title}}
+        result = self.collection_product.update_one(query, payload)
+        if result.modified_count != 1:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+            )
+        return self.get_product(product_id)
 
     def create_product(self, new_product: NewProduct) -> SavedProduct:
 
