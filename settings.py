@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     @property
     def MONGO_URI(self) -> str:
-        return f"mongodb+srv://{self.USER_MONGO}:{self.PASSWORD_MONGO}@mycluster.mnzxi.mongodb.net/?retryWrites=true&w=majority&appName=myCluster"
+        return f"mongodb+srv://{self.USER_MONGO}:{self.PASSWORD_MONGO}@cluster0.tsmay.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 
 settings = Settings()
