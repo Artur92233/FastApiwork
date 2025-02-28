@@ -1,21 +1,29 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status, Request, Form
+from fastapi.templating import Jinja2Templates
 
 from base_storage import storage
 
-from schemas import NewProduct, SavedProduct
+from schemas import NewProduct, SavedProduct, PatchProduct
 
 app = FastAPI()
 
+templates = Jinja2Templates(directory="templates")
+
 
 @app.get("/")
-def index():
-    return {"status": "OK"}
+def index(request: Request):
+    cars = storage.get_products()
+    context = {"request": request, "cars": cars}
+    return templates.TemplateResponse(
+        "index.html",
+        context=context,
+    )
 
 
-@app.post("/cars/", tags=["Автомобілі"])
+@app.post("/cars/", tags=["Автомобілі"], status_code=status.HTTP_201_CREATED)
 def create_car(new_car: NewProduct) -> SavedProduct:
-    car = storage.create_product(new_car)
-    return car
+    product = storage.create_product(new_car)
+    return product
 
 
 @app.get("/cars/{car_id}")
@@ -31,8 +39,9 @@ def get_cars(query: str = "", limit: int = 10, skip: int = 0) -> list[SavedProdu
 
 
 @app.patch("/cars/{car_id}")
-def edit_car(car_id: str, data: dict):
-    pass
+def edit_car(car_id: str, data: PatchProduct) -> SavedProduct:
+    product = storage.patch_product(car_id, data)
+    return product
 
 
 @app.delete("/cars/{car_id}")
