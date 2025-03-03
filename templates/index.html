@@ -13,7 +13,8 @@
       <div class="card-body">
         <h5 class="card-title">{{ car.title }}</h5>
         <p class="card-text">{{ car.description|truncate(80) }}</p>
-        <a href="#" class="btn btn-primary">Детальніше</a>
+        <a href="{{ url_for('get_car_info', product_id=car.id) }}" class="btn btn-primary">Детальніше</a>
+
       </div>
     </div>
 

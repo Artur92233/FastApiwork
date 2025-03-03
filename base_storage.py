@@ -63,9 +63,14 @@ class MongoStorage(BaseStorage):
         saved_product = SavedProduct(**payload)
         return saved_product
 
-    def get_product(self, product_id: str) -> SavedProduct:
+    def get_product(
+        self, product_id: str, with_raise: bool = True
+    ) -> SavedProduct | None:
         query = {"id": product_id}
         car = self.collection_product.find_one(query)
+        if not car and not with_raise:
+            return None
+
         if not car:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
