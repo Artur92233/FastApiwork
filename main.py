@@ -11,11 +11,49 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/")
-def index(request: Request):
+@app.post("/")
+def index(request: Request, q: str = Form(default="")):
     cars = storage.get_products()
+    cars = storage.get_products(q=q)
     context = {"request": request, "cars": cars}
     return templates.TemplateResponse(
         "index.html",
+        context=context,
+    )
+
+
+@app.get("/map_route")
+def map_route_2(request: Request):
+
+    context = {"request": request}
+    return templates.TemplateResponse(
+        "map.html",
+        context=context,
+    )
+
+
+@app.get("/video")
+def video(request: Request):
+
+    context = {"request": request}
+    return templates.TemplateResponse(
+        "video.html",
+        context=context,
+    )
+
+
+@app.get("/{product_id}")
+def get_car_info(request: Request, product_id: str):
+    car = storage.get_product(product_id=product_id)
+    if not car:
+        return templates.TemplateResponse(
+            "404.html",
+            context={"request": request, "car": car},
+        )
+
+    context = {"request": request, "car": car}
+    return templates.TemplateResponse(
+        "details.html",
         context=context,
     )
 
